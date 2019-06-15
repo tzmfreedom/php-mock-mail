@@ -9,6 +9,10 @@ class StreamWrapper
      */
     private $content;
 
+    private static $patterns = array(
+        '/(?<!::|->|\w_)\\\?mail\s*\(/i'                => '\MockMail\MockMail::mail(',
+    );
+
     private function register()
     {
         stream_wrapper_unregister("file");
@@ -23,6 +27,7 @@ class StreamWrapper
     {
         stream_wrapper_restore("file");
         $content = file_get_contents($path);
+        $this->content = preg_replace(array_keys(self::$patterns), array_values(self::$patterns), $content);
         $this->content = str_replace("mail", "MockMail\\MockMail::mail", $content);
         $this->register();
         return true;
